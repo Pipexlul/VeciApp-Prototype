@@ -1,0 +1,722 @@
+openapi: 3.0.3
+info:
+  title: Felipe Guajardo's Prototype API contract
+  version: 1.0.11
+
+servers:
+  - url: /api/v1
+
+tags:
+  - name: Owners
+    description: Section for store owners to log in and manage their store
+  - name: Customers
+    description: Section for clients/customers to log in, manage their profile and search for stores
+  - name: Register
+    description: Public section to create a new Owner or Customer account
+
+externalDocs:
+  description: Find out more about Swagger
+  url: http://swagger.io
+
+components:
+  schemas:
+    StorePreview:
+      type: object
+      properties:
+        id:
+          type: integer
+        store_name:
+          type: string
+        address:
+          type: string
+        distance:
+          type: integer
+        open_until:
+          type: string
+        product_name:
+          type: string
+          nullable: true
+        product_price:
+          type: integer
+          nullable: true
+        product_image:
+          type: string
+          nullable: true
+      required:
+        - id
+        - store_name
+        - address
+        - distance
+        - open_until
+        - product_name
+        - product_price
+        - product_image
+    BaseItemId:
+      type: object
+      properties:
+        id:
+          type: integer
+    BaseItemImageForm:
+      type: object
+      properties:
+        product_image:
+          type: string
+          format: binary
+          nullable: true
+    BaseItemImageURI:
+      type: object
+      properties:
+        product_image:
+          type: string
+          format: uri
+          nullable: true
+    BaseItemOwnerView:
+      type: object
+      properties:
+        product_available:
+          type: boolean
+        updated_at:
+          type: string
+    BaseItemData:
+      type: object
+      properties:
+        store_id:
+          type: integer
+        product_name:
+          type: string
+        product_price:
+          type: integer
+        product_type:
+          type: string
+        product_units_per_pack:
+          type: integer
+          nullable: true
+        product_stock:
+          type: integer
+          nullable: true
+        product_categories:
+          type: array
+          items:
+            type: string
+    StoreItem:
+      allOf:
+        - $ref: "#/components/schemas/BaseItemId"
+        - $ref: "#/components/schemas/BaseItemData"
+        - $ref: "#/components/schemas/BaseItemImageURI"
+      required:
+        - id
+        - store_id
+        - product_name
+        - product_price
+        - product_type
+        - product_image
+        - product_units_per_pack
+        - product_stock
+        - product_categories
+    StoreItemAsOwner:
+      allOf:
+        - $ref: "#/components/schemas/StoreItem"
+        - $ref: "#/components/schemas/BaseItemOwnerView"
+      required:
+        - product_available
+        - updated_at
+    EditStoreItemFormData:
+      allOf:
+        - $ref: "#/components/schemas/BaseItemId"
+        - $ref: "#/components/schemas/BaseItemData"
+        - $ref: "#/components/schemas/BaseItemImageForm"
+      required:
+        - id
+        - store_id
+        - product_name
+        - product_price
+        - product_type
+        - product_image
+        - product_units_per_pack
+        - product_stock
+        - product_categories
+    AddStoreItemFormData:
+      allOf:
+        - $ref: "#/components/schemas/BaseItemData"
+        - $ref: "#/components/schemas/BaseItemImageForm"
+      required:
+        - store_id
+        - product_name
+        - product_price
+        - product_type
+        - product_image
+        - product_units_per_pack
+        - product_stock
+        - product_categories
+    StoreDailySchedule:
+      type: object
+      properties:
+        open_at:
+          type: string
+          nullable: true
+        close_at:
+          type: string
+          nullable: true
+      required:
+        - open_at
+        - close_at
+    StoreWeeklySchedule:
+      type: object
+      properties:
+        monday:
+          $ref: "#/components/schemas/StoreDailySchedule"
+        tuesday:
+          $ref: "#/components/schemas/StoreDailySchedule"
+        wednesday:
+          $ref: "#/components/schemas/StoreDailySchedule"
+        thursday:
+          $ref: "#/components/schemas/StoreDailySchedule"
+        friday:
+          $ref: "#/components/schemas/StoreDailySchedule"
+        saturday:
+          $ref: "#/components/schemas/StoreDailySchedule"
+        sunday:
+          $ref: "#/components/schemas/StoreDailySchedule"
+      required:
+        - monday
+        - tuesday
+        - wednesday
+        - thursday
+        - friday
+        - saturday
+        - sunday
+    BaseStoreSettings:
+      type: object
+      properties:
+        store_id:
+          type: integer
+        store_name:
+          type: string
+        store_address:
+          type: string
+        schedule:
+          $ref: "#/components/schemas/StoreWeeklySchedule"
+    BaseStoreSettingsImageForm:
+      type: object
+      properties:
+        store_image:
+          type: string
+          format: binary
+          nullable: true
+    BaseStoreSettingsImageURI:
+      type: object
+      properties:
+        store_image:
+          type: string
+          format: uri
+          nullable: true
+    StoreSettings:
+      allOf:
+        - $ref: "#/components/schemas/BaseStoreSettings"
+        - $ref: "#/components/schemas/BaseStoreSettingsImageURI"
+      required:
+        - store_id
+        - store_name
+        - store_address
+        - store_image
+        - schedule
+    EditStoreSettingsFormData:
+      allOf:
+        - $ref: "#/components/schemas/BaseStoreSettings"
+        - $ref: "#/components/schemas/BaseStoreSettingsImageForm"
+      required:
+        - store_id
+        - store_name
+        - store_address
+        - store_image
+        - schedule
+    LoginResponseCustomer:
+      type: object
+      properties:
+        name:
+          type: string
+        surname:
+          type: string
+      required:
+        - name
+        - surname
+    LoginResponseOwner:
+      type: object
+      properties:
+        name:
+          type: string
+        surname:
+          type: string
+        store_name:
+          type: string
+      required:
+        - name
+        - surname
+        - store_name
+
+  responses:
+    SuccessfulLoginCustomer:
+      description: OK
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/LoginResponseCustomer"
+    SuccessfulLoginOwner:
+      description: OK
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/LoginResponseOwner"
+    ResourceCreated:
+      description: Created
+      headers:
+        Location:
+          description: The URI of the newly created resource
+          schema:
+            type: string
+            format: uri
+          required: false
+    NoContent:
+      description: No content
+    BadRequest:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+            required:
+              - message
+    Unauthorized:
+      description: Bearer token is missing or invalid
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+            required:
+              - message
+    NotFound:
+      description: Not found
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+            required:
+              - message
+  securitySchemes:
+    jwtBearer:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+paths:
+  /customers/login:
+    post:
+      tags:
+        - Customers
+      operationId: loginCustomer
+      summary: Login a customer
+      description: Login a customer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+              required:
+                - email
+                - password
+      responses:
+        "200":
+          $ref: "#/components/responses/SuccessfulLoginCustomer"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+  /customers/dashboard:
+    get:
+      tags:
+        - Customers
+      operationId: getCustomerDashboard
+      summary: Get customer dashboard
+      description: Get customer dashboard
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  google_maps_api:
+                    type: string
+                required:
+                  - google_maps_api
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+      security:
+        - jwtBearer: []
+  /customers/searchItems:
+    get:
+      tags:
+        - Customers
+      operationId: searchItems
+      summary: Search items
+      description: Search items
+      parameters:
+        - name: lat
+          in: query
+          required: true
+          description: Latitude of the origin point
+          schema:
+            type: number
+            format: float
+            minimum: -90
+            maximum: 90
+        - name: lng
+          in: query
+          required: true
+          description: Longitude of the origin point
+          schema:
+            type: number
+            format: float
+            minimum: -180
+            maximum: 180
+        - name: radius
+          in: query
+          required: true
+          description: Search radius in meters
+          schema:
+            type: integer
+            minimum: 1
+        - name: product
+          in: query
+          required: false
+          description: Name of product to search
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/StorePreview"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+      security:
+        - jwtBearer: []
+  /customers/stores/{store_id}:
+    get:
+      tags:
+        - Customers
+      operationId: getStore
+      summary: Get store by id
+      description: Get store by id
+      parameters:
+        - name: store_id
+          in: path
+          required: true
+          description: Store id
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  store_name:
+                    type: string
+                  address:
+                    type: string
+                  owner_name:
+                    type: string
+                  distance:
+                    type: integer
+                  open_until:
+                    type: string
+                  products:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/StoreItem"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+      security:
+        - jwtBearer: []
+  /owners/login:
+    post:
+      tags:
+        - Owners
+      operationId: loginOwner
+      summary: Login an owner
+      description: Login an owner
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+              required:
+                - email
+                - password
+      responses:
+        "200":
+          $ref: "#/components/responses/SuccessfulLoginOwner"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+  /owners/dashboard:
+    get:
+      tags:
+        - Owners
+      operationId: getOwnerDashboard
+      summary: Get owner dashboard
+      description: Get owner dashboard
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  store_id:
+                    type: integer
+                  store_open:
+                    type: boolean
+                  store_name:
+                    type: string
+                  analytics:
+                    type: object
+                    properties:
+                      total_views:
+                        type: integer
+                      weekly_views:
+                        type: integer
+                      daily_views_last_week:
+                        type: array
+                        minItems: 7
+                        maxItems: 7
+                        items:
+                          type: integer
+                          format: int32
+                    required:
+                      - total_views
+                      - weekly_views
+                      - daily_views_last_week
+                required:
+                  - store_id
+                  - store_open
+                  - store_name
+                  - analytics
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+      security:
+        - jwtBearer: []
+  /owners/items:
+    get:
+      tags:
+        - Owners
+      operationId: getOwnerItems
+      summary: Get owner items
+      description: Get owner items
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/StoreItemAsOwner"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+      security:
+        - jwtBearer: []
+    post:
+      tags:
+        - Owners
+      operationId: addOwnerItem
+      summary: Add owner item
+      description: Add owner item
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: "#/components/schemas/AddStoreItemFormData"
+      responses:
+        "201":
+          $ref: "#/components/responses/ResourceCreated"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+      security:
+        - jwtBearer: []
+  /owners/items/{item_id}:
+    get:
+      tags:
+        - Owners
+      operationId: getOwnerItem
+      summary: Get owner item
+      description: Get owner item
+      parameters:
+        - name: item_id
+          in: path
+          required: true
+          description: Item id
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StoreItemAsOwner"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+      security:
+        - jwtBearer: []
+    put:
+      tags:
+        - Owners
+      operationId: editOwnerItem
+      summary: Edit owner item
+      description: Edit owner item
+      parameters:
+        - name: item_id
+          in: path
+          required: true
+          description: Item id
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: "#/components/schemas/EditStoreItemFormData"
+      responses:
+        "204":
+          $ref: "#/components/responses/NoContent"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+      security:
+        - jwtBearer: []
+  /owners/settings:
+    get:
+      tags:
+        - Owners
+      operationId: getOwnerSettings
+      summary: Get owner settings
+      description: Get owner settings
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StoreSettings"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+      security:
+        - jwtBearer: []
+    put:
+      tags:
+        - Owners
+      operationId: editOwnerSettings
+      summary: Edit owner settings
+      description: Edit owner settings
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: "#/components/schemas/EditStoreSettingsFormData"
+      responses:
+        "204":
+          $ref: "#/components/responses/NoContent"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+      security:
+        - jwtBearer: []
+  /register:
+    post:
+      tags:
+        - Register
+      operationId: registerUser
+      summary: Register a user
+      description: Register a user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                surname:
+                  type: string
+                birth_date:
+                  type: string
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                asStoreOwner:
+                  type: boolean
+              required:
+                - name
+                - surname
+                - birth_date
+                - email
+                - password
+                - asStoreOwner
+      responses:
+        "201":
+          $ref: "#/components/responses/ResourceCreated"
+        "400":
+          $ref: "#/components/responses/BadRequest"
